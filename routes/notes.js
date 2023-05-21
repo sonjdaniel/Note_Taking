@@ -25,3 +25,18 @@ notes.post("/", (req, res) => {
     id: generateId,
   };
 });
+// DELETE Route for endpoint /api/notes
+notes.delete("/:id", (req, res) => {
+  // Reading db.json file
+  const readNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+  // Filtering notes to only show the ones that are not being deleted (don't have the ID of the deleted note)
+  const notDeletedNotes = readNotes.filter((note) => note.id !== req.params.id);
+  const noteString = JSON.stringify(notDeletedNotes);
+  // Saving remaining notes in db.json
+  fs.writeFileSync("./db/db.json", noteString);
+  // Returning ID of the deleted note
+  res.json(`${req.params.id} has been deleted`);
+});
+
+// Exporting notes
+module.exports = notes;
