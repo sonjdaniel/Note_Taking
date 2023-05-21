@@ -1,26 +1,27 @@
-const router = require("express").Router();
-const path = require("path");
-// const path = require('path');
-const notes = require("../db/db.json");
+// Importing Router method from Express.js
+const notes = require("express").Router();
+// Importing uuid library that generates unique identifiers
 const { v4: uuidv4 } = require("uuid");
+// Importing File System
 const fs = require("fs");
 
-router.get("/api/notes", (req, res) => res.json(notes));
+// GET Route for endpoint /api/notes
+notes.get("/", (req, res) => {
+  // Reading db.json file
+  const readNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
+  // Returning saved notes as JSON
+  res.json(readNotes);
+});
 
-router.post("/api/notes", (req, res) => {
-  const { title, text } = req.body;
-
+// POST Route for endpoint /api/notes
+notes.post("/", (req, res) => {
+  const { title, text, id } = req.body;
+  // Generating unique indentifier
+  const generateId = uuidv4();
+  // When POST is called, it creates a new object with title, text and unique ID
   const newNote = {
     title,
     text,
-    // id: uuidv4(),
+    id: generateId,
   };
-
-  const noteString = JSON.stringify(newNote);
-
-  fs.appendFile(notes, noteString, (err) =>
-    err ? console.error(err) : console.log("Done")
-  );
 });
-
-module.exports = router;
