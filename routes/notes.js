@@ -1,42 +1,57 @@
-// Importing Router method from Express.js
 const notes = require("express").Router();
-// Importing uuid library that generates unique identifiers
-const { v4: uuidv4 } = require("uuid");
-// Importing File System
-const fs = require("fs");
+const {
+  readFromFile,
+  writeToFile,
+  readAndAppend,
+} = require("../helpers/fsUtils");
+const uuid = require("../helpers/uuid");
 
-// GET Route for endpoint /api/notes
+//JSON file is read with the promise function and then the data is returned into a javascript object to be used on the front end
 notes.get("/", (req, res) => {
-  // Reading db.json file
-  const readNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
-  // Returning saved notes as JSON
-  res.json(readNotes);
+  console.info(`${req.method} request received to view notes`);
+  readFromFile("./db/db.json").then((data) => res.json(JSON.parse(data)));
 });
 
-// POST Route for endpoint /api/notes
+//the JSON file is (synchronously) read, parsed as a javascript array, appended with new note,
+//written back into JSON file, parsed as a javascript object again, and sent to the front end
 notes.post("/", (req, res) => {
-  const { title, text, id } = req.body;
-  // Generating unique indentifier
-  const generateId = uuidv4();
-  // When POST is called, it creates a new object with title, text and unique ID
-  const newNote = {
-    title,
-    text,
-    id: generateId,
-  };
-});
-// DELETE Route for endpoint /api/notes
-notes.delete("/:id", (req, res) => {
-  // Reading db.json file
-  const readNotes = JSON.parse(fs.readFileSync("./db/db.json", "utf8"));
-  // Filtering notes to only show the ones that are not being deleted (don't have the ID of the deleted note)
-  const notDeletedNotes = readNotes.filter((note) => note.id !== req.params.id);
-  const noteString = JSON.stringify(notDeletedNotes);
-  // Saving remaining notes in db.json
-  fs.writeFileSync("./db/db.json", noteString);
-  // Returning ID of the deleted note
-  res.json(`${req.params.id} has been deleted`);
+  console.info(`${req.method} request received to add a note`);
+
+  const { title, text } = req.body;
+
+  if (title && text) {
+    const newNote = {
+      title,
+      text,
+      id: uuid(),
+    };
+
+    readAndAppend(newNote, "./db/db.json");
+    res.json(`Note added successfully 🚀`);
+  } else {
+    res.error("Error in adding note");
+  }
 });
 
-// Exporting notes
+//findIndex method ties specified ID to full note after reading and parsing JSON file,
+//index allows selected note to be spliced from note array, and the new array is returned,
+//written back to the JSON file, read again from the file, parsed as a javascript array and sent
+//as a response to the front end
+notes.delete("/:id", (req, res) => {
+  console.info(`${req.method} request received to delete a note`);
+
+  const deleteNoteID = req.params.id;
+
+  readFromFile("./db/db.json")
+    .then((data) => {
+      parsedNotes = JSON.parse(data);
+      const index = parsedNotes.findIndex((item) => item.id === deleteNoteID);
+      parsedNotes.splice(index, 1);
+      return parsedNotes;
+    })
+    .then((parsedNotes) => writeToFile("./db/db.json", parsedNotes));
+
+  readFromFile("./db/db.json").then((data) => res.json(JSON.parse(data)));
+});
+
 module.exports = notes;
