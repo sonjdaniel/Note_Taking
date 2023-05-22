@@ -24,6 +24,8 @@ This app requires Node.js, npm, Express.js, and Heroku.
 
 ![example of what it looks like](./public/assets/Images/2.png)
 
+[_LINK TO DEPLOYED APPLICATION AT HEROKU_](https://sonjdaniel-notetaking.herokuapp.com/)
+
 ## License
 
 This product is licensed under MIT.
