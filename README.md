@@ -20,6 +20,10 @@ This app requires Node.js, npm, Express.js, and Heroku.
 4. If you are viewing an existing note in the main area, you can click the plus icon in the upper right hand corner to exit out of the note and add a new one.
 5. To delete a note, click the trash can to the right of an existing note in the list.
 
+![image to get start](./public/assets/Images/1.png)
+
+![example of what it looks like](./public/assets/Images/2.png)
+
 ## License
 
 This product is licensed under MIT.
